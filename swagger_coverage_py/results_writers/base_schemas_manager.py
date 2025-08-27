@@ -10,6 +10,7 @@ from requests import Response
 
 from swagger_coverage_py.configs import API_DOCS_FORMAT
 from swagger_coverage_py.uri import URI
+from pathlib import Path
 
 
 class ApiDocsManagerBase:
@@ -128,7 +129,7 @@ class ApiDocsManagerBase:
         return self._get_other_request_params(params_key="headers", params_in="header")
 
     def __get_output_subdir(self):
-        return re.match(r"(^\w*)://(.*)", self._uri.host).group(2)
+        return re.match(r"(^\w*)://(.*)", self._uri.host).group(2).replace(".", "_").replace(":", "_")
 
     def write_schema(self):
         schema_dict = self._get_schema()
@@ -136,6 +137,7 @@ class ApiDocsManagerBase:
         file_name = f"{self._method.upper()} {self._uri.formatted[1::]}".replace(
             "/", "-"
         ).replace(":", "_")
+        pathlib.Path(path_).mkdir(parents=True, exist_ok=True)
         path_ = f"swagger-coverage-output/{self.__get_output_subdir()}"
         file_path = f"{path_}/{file_name}".split("?")[0]
         file_path = f"{file_path} ({rnd}).{API_DOCS_FORMAT}"
